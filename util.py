@@ -1,5 +1,7 @@
+from typing import List, Dict, Set, Tuple
+
 class inputData:
-    def __init__(self, side:str, ownTime:str, otherTime:str, board:list[list[str]], pieces:dict[str, set[tuple[int, int]]]):
+    def __init__(self, side:str, ownTime:str, otherTime:str, board:List[List[str]], pieces:Dict[str, Set[Tuple[int, int]]]):
         self.side = side
         self.ownTime = ownTime
         self.otherTime = otherTime
@@ -45,6 +47,15 @@ def append_output_move(move):
     with open("append.txt", "w") as f:
         f.write(f"{to_coord(r1,c1)} {to_coord(r2,c2)}\n")
 
+def countRound():
+    # if playdata.txt doesn't exist, create it with 1; otherwise increment by 1
+    try:
+        with open("playdata.txt", "r") as f:
+            round_num = int(f.read().strip())
+    except FileNotFoundError:
+        round_num = 0
 
+    round_num += 1
 
-    
+    with open("playdata.txt", "w") as f:
+        f.write(str(round_num))

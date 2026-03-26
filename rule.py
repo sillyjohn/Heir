@@ -3,7 +3,7 @@ from state import GameState
 def add_move(moves, src, dst, pieceName):
     move = (src, dst)
     moves.append(move)
-    print(f"added move {move} for piece {pieceName}")
+    #print(f"added move {move} for piece {pieceName}")
 
 def babymove(board, side, loc ,moves):
     if side == 0:
@@ -216,12 +216,7 @@ def siblingmove(board, side, loc, moves):
                         add_move(moves, (r, c), (new_r, new_c),"Slibling")
                         break
 
-def generatemoves(state: GameState):
-    board = state.board
-    side = state.side
-    pieces = state.pieces
-    moves= []
-    move_functions = {
+move_functions = {
     'P': princemove,
     'B': babymove,
     'S': scoutmove,
@@ -230,7 +225,14 @@ def generatemoves(state: GameState):
     'Y': ponymove,
     'N': siblingmove,
     'X': princessmove
-    }
+}
+
+def generatemoves(state: GameState):
+    board = state.board
+    side = state.side
+    pieces = state.pieces
+    moves= []
+
     for key, loc_set in pieces.items():
         #print(f"key is {key}")
         if state.side == 0 and not key.isupper():
@@ -244,3 +246,30 @@ def generatemoves(state: GameState):
             fn(board, side, loc, moves)
 
     return moves
+
+def countMoves(state: GameState):
+    """Count available moves without generating the full list."""
+    board = state.board
+    side = state.side
+    pieces = state.pieces
+    move_count = 0
+
+    for key, loc_set in pieces.items():
+        if state.side == 0 and not key.isupper():
+            continue
+        elif state.side == 1 and not key.islower():
+            continue
+  
+        fn = move_functions.get(key.upper())
+
+        for loc in loc_set:
+            # Pass a counter instead of a list
+            move_count += countMovesForPiece(board, side, loc, fn)
+
+    return move_count
+
+def countMovesForPiece(board, side, loc, move_fn):
+    """Helper: count moves for a single piece without appending."""
+    moves = []
+    move_fn(board, side, loc, moves)  # Still uses existing move_fn
+    return len(moves)
