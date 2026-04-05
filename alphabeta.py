@@ -13,6 +13,8 @@ PIECES_VALUES= {
     "N":500,
 }
 
+WIN_SCORE = 10_000_000
+
 def evaluation_function(gameState):
     # Calculate the score of the game state
     # For now, just add up all the pieces on the board, 
@@ -30,6 +32,21 @@ def evaluation_function(gameState):
             elif piece.islower():
                 score -= value
     return score
+
+def order_moves(state: GameState, moves):
+    board = state.board
+    side = state.side
+
+    def score_move(move):
+        _, dest = move
+        dest_r, dest_c = dest
+        captured = board[dest_r][dest_c]
+        if captured == ".":
+            return 0
+        value = PIECES_VALUES[captured.upper()]
+        return value if side == 0 else -value
+
+    return sorted(moves, key=score_move, reverse=True)
 
 def updatedState(state: GameState, move):
     # Update state
@@ -79,7 +96,7 @@ def ab_minMax(gameState: GameState, depth):
     beta = float('inf')
     
     # Generate the initial moves for the root state
-    moves = rule.generatemoves(gameState)
+    moves = order_moves(gameState, rule.generatemoves(gameState))
     if not moves:
         return None  # No moves available 
 
@@ -97,7 +114,6 @@ def ab_minMax(gameState: GameState, depth):
                 best_move = move
                 
             alpha = max(alpha, best_score)
-        print(f"best move for white: {best_move}, score: {best_score}, piece: {gameState.board[best_move[0][0]][best_move[0][1]]}")
         return best_move
 
     else:  # Minimize black
@@ -113,20 +129,19 @@ def ab_minMax(gameState: GameState, depth):
                 best_move = move
                 
             beta = min(beta, best_score)
-        print(f"best move for black: {best_move}, score: {best_score}, piece: {gameState.board[best_move[0][0]][best_move[0][1]]}")
         return best_move
 
 def maxVal(state, depth ,alpha, beta):
     best = float('-inf')
     if state.winner is not None:
         if state.winner == 0:
-            return float('inf')
+            return WIN_SCORE
         else:
-            return float('-inf')
+            return -WIN_SCORE
     if depth <= 0:
         return evaluation_function(state)
 
-    moves = rule.generatemoves(state)
+    moves = order_moves(state, rule.generatemoves(state))
     if not moves:
         return evaluation_function(state)
 
@@ -143,13 +158,13 @@ def minVal(state, depth ,alpha, beta):
     worst = float('inf')
     if state.winner is not None:
         if state.winner == 0:
-            return float('inf')
+            return WIN_SCORE
         else:
-            return float('-inf')
+            return -WIN_SCORE
 
     if depth <= 0:
         return evaluation_function(state)
-    moves = rule.generatemoves(state)
+    moves = order_moves(state, rule.generatemoves(state))
     if not moves:
         return evaluation_function(state) 
 
