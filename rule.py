@@ -247,17 +247,19 @@ def generatemoves(state: GameState):
 
     return moves
 
-def countMoves(state: GameState):
-    """Count available moves without generating the full list."""
+def countMovesBySide(state: GameState, side: int):
+    """Count available moves for a specific side without mutating state."""
+    if side not in (0, 1):
+        raise ValueError("side must be 0 (white) or 1 (black)")
+
     board = state.board
-    side = state.side
     pieces = state.pieces
     move_count = 0
 
     for key, loc_set in pieces.items():
-        if state.side == 0 and not key.isupper():
+        if side == 0 and not key.isupper():
             continue
-        elif state.side == 1 and not key.islower():
+        elif side == 1 and not key.islower():
             continue
   
         fn = move_functions.get(key.upper())
@@ -267,6 +269,10 @@ def countMoves(state: GameState):
             move_count += countMovesForPiece(board, side, loc, fn)
 
     return move_count
+
+def countMoves(state: GameState):
+    """Backward-compatible wrapper: count moves for the current side to play."""
+    return countMovesBySide(state, state.side)
 
 def countMovesForPiece(board, side, loc, move_fn):
     """Helper: count moves for a single piece without appending."""
