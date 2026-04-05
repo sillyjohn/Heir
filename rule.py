@@ -3,7 +3,6 @@ from state import GameState
 def add_move(moves, src, dst, pieceName):
     move = (src, dst)
     moves.append(move)
-    print(f"added move {move} for piece {pieceName}")
 
 def babymove(board, side, loc ,moves):
     if side == 0:
