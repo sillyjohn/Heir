@@ -3,23 +3,23 @@ import rule
 
 PIECES_VALUES = {
     "B": 100,
-    "P": 2000,
+    "P": 20000,
     "X": 700,
-    "Y": 600,
-    "G": 200,
-    "T": 400,
+    "Y": 400,
+    "G": 300,
+    "T": 600,
     "S": 700,
-    "N": 300,
+    "N": 200,
 }
 
 BOARD_SIZE = 12
 MAX_L1_DISTANCE = (BOARD_SIZE - 1) * 2
-DISTANCE_WEIGHT = 0.2
-CAPTURE_WEIGHT = 0.3
-RECAPTURE_PENALTY_WEIGHT = 1.0
-CAPTURE_VALUE_DIFF_WEIGHT = 0.1
+DISTANCE_WEIGHT = 0.3
+CAPTURE_WEIGHT = 0.6
+RECAPTURE_PENALTY_WEIGHT = 9.0
+CAPTURE_VALUE_DIFF_WEIGHT = 0.6
 OPEN_MOVE_WEIGHT = 0.2
-
+MATERIAL_WEIGHT = 1.1
 
 def mobility_score(game_state: GameState):
     """White-centric mobility term based on own_legal_moves - opp_legal_moves."""
@@ -47,7 +47,7 @@ def material_score(game_state: GameState):
             score += value
         else:
             score -= value
-    return score
+    return score * MATERIAL_WEIGHT
 
 
 def distance_to_opponent_prince_score(game_state: GameState, last_move=None):
@@ -165,12 +165,12 @@ def capture_setup_score(game_state: GameState, last_move=None):
         diff_reward = CAPTURE_VALUE_DIFF_WEIGHT * value_diff
 
         if side == 0:
-            capture_component = captured_value - (RECAPTURE_PENALTY_WEIGHT * recapture_loss)
-            candidate_score = (CAPTURE_WEIGHT * capture_component) + diff_reward
+            capture_component = captured_value - (RECAPTURE_PENALTY_WEIGHT * recapture_loss) + diff_reward
+            candidate_score = (CAPTURE_WEIGHT * capture_component) 
             best_score = max(best_score, candidate_score)
         else:
-            capture_component = -captured_value + (RECAPTURE_PENALTY_WEIGHT * recapture_loss)
-            candidate_score = (CAPTURE_WEIGHT * capture_component) - diff_reward
+            capture_component = -captured_value + (RECAPTURE_PENALTY_WEIGHT * recapture_loss) - diff_reward
+            candidate_score = (CAPTURE_WEIGHT * capture_component) 
             best_score = min(best_score, candidate_score)
 
     return best_score
